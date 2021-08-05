@@ -2,26 +2,38 @@ import numpy as np
 
 
 class Bot():
-    def __init__(self, x, y, theta):
+    def __init__(self, map, x, y, theta, random=True):
         """
-        Spawns a new bot
+        Spawns a new bot in given x, y, theta (position and orientation),
+        unless random is True in which case a randomized position and
+        orientation are used.
 
         Args:
+            map: Map to add bot to
             x, y: Coords of spawn point (cm)
             theta: Angle bot faces (degrees)
 
         """
+        self.map = map
+
         # Set initial position of bot
-        self.x = x
-        self.y = y
-        self.theta = theta
+        if random:
+            width, height = map.get_dims()
+
+            self.x = np.random.uniform(-width/2, width/2)
+            self.y = np.random.uniform(-height/2, height/2)
+            self.theta = np.random.uniform(0, 2*np.pi)
+        else:
+            self.x = x
+            self.y = y
+            self.theta = theta
 
         # Arrays to store traversed points
         self.x_path = []
         self.y_path = []
 
-        # Map the bot is on
-        self.map = None
+        # Add bot to map
+        map.add_bot(new_bot=self)
 
     def move(self, distance):
         """
@@ -129,17 +141,6 @@ class Bot():
             m = (y - self.y)/(x - self.x)
 
             return np.isclose(m, np.arctan(self.get_theta()))
-
-
-    def set_map(self, current_map):
-        """
-        Sets the map the bot is on
-
-        Args:
-            current_map: Map to set
-
-        """
-        self.map = current_map
 
     def get_map(self):
         """
