@@ -47,7 +47,7 @@ class Map():
         for patch in [boundary, outer, middle, inner]:
             self.ax.add_patch(patch)
 
-    def spawn_bot(self, x=0, y=0, angle=0, random=True):
+    def spawn_bot(self, x=0, y=0, theta=0, random=True):
         """
         Spawns a new Bot at a given initial position and orientation if
         random is False. Otherwise a new bot is spawned at a random position
@@ -57,19 +57,20 @@ class Map():
 
         Args:
             x, y: Coordinates to spawn Bot at. (in centimeters)
-            angle: Orientation of robot
+            theta: Orientation of robot
             random: Whether or not to spawn the bot at a random position.
 
         """
 
         if not random:
-            new_bot = Bot(x, y, angle)
+            new_bot = Bot(x, y, theta)
         else:
             rand_x = np.random.uniform(-self.width/2, self.width/2)
             rand_y = np.random.uniform(-self.height/2, self.height/2)
-            rand_angle = np.random.uniform(0, 360)
+            rand_angle = np.random.uniform(0, 2*np.pi)
             new_bot = Bot(rand_x, rand_y, rand_angle)
 
+        new_bot.set_map(current_map=self)
         self.bots.append(new_bot)
 
     def get_paths(self):
