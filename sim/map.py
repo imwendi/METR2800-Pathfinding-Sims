@@ -116,3 +116,10 @@ class Map():
         """
 
         return self.fig, self.ax
+
+    def get_dims(self):
+        """
+        Returns: Width and height of map
+
+        """
+        return self.width, self.height

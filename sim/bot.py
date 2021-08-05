@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Bot():
     def __init__(self, x, y, theta):
         """
@@ -50,37 +51,56 @@ class Bot():
         if degrees:
             turn_angle = np.deg2rad(turn_angle)
 
-        self.set_angle(self.theta + turn_angle, degrees=False)
+        self.set_theta(self.theta + turn_angle, degrees=False)
 
-    def set_angle(self, theta, degrees=True):
+    def sense(self, sensor_theta=0, degrees=True):
         """
-        Setter for theta parameter
+        Simulates distance sensing proximity to a wall in a given direction.
+        By default the direction is that of the robots orientation.
 
         Args:
-            theta: Angle to set
-            degrees: Whether or not angle is in degrees
-
-        """
-        if degrees:
-            self.theta = np.deg2rad(theta)
-        else:
-            self.theta = theta
-
-
-    def sense(self, mode='both'):
-        """
-        Simulates distance sensing proximity to a wall in the direction of
-        the robot's orientation.
-
-        Args:
-            mode:
-            'both' - Computes distance to forwards and backwards walls
-            'forward' - Computes distance to forwards wall only
+            sensor_theta: Orientation of sensor relative to robot body
+            degrees: If sensing_angle is in degrees
 
         Returns:
             Distance to wall in cm (Tuple is returned in 'both' mode)
+            Otherwise returns -1 on error
 
         """
+        if degrees:
+            sensor_theta = np.deg2rad(sensor_theta)
+
+        l, _ = self.get_map().get_dims()
+        l /= 2.0
+        x0, y0 = self.get_pos()
+        m = np.arctan(self.get_theta() + sensor_theta)
+        intercepts = np.zeros((4, 2))  # x,y values as columns
+
+        print(np.rad2deg(self.theta))
+
+        for i, x in enumerate((-l, l)):
+            if np.isclose(self.theta, np.pi/2)\
+                    or np.isclose(self.theta, 3*np.pi/2):
+                y = self.y
+            else:
+                y = m*(l-x0) + y0
+
+            intercepts[i, :] = [x, y]
+
+        for i, y in enumerate((-l, l)):
+            if np.isclose(self.theta, 0) or np.isclose(self.theta, np.pi):
+                x = self.x
+            else:
+                x = (y-y0)/m + x0
+
+            intercepts[i+2, :] = [x, y]
+
+        for (x, y) in intercepts[:, ...]:
+            print(x, y)
+            if self.is_facing((x, y)):
+                return np.sqrt((x-self.x)**2 + (y-self.y)**2)
+
+        return -1
 
     def is_facing(self, point):
         """
@@ -94,9 +114,22 @@ class Bot():
 
         """
         x, y = point
-        theta = np.atan((y-self.y)/(x-self.x))
 
-        return np.abs(theta-self.theta) < 0.1
+        if np.isclose(self.x, x)\
+            and (np.isclose(self.theta, np.pi/2)
+                 or np.isclose(self.theta, 3*np.pi/2)):
+            return True
+
+        elif np.isclose(self.y, y) \
+                and (np.isclose(self.theta, 0)
+                     or np.isclose(self.theta, np.pi)):
+            return True
+
+        else:
+            m = (y - self.y)/(x - self.x)
+
+            return np.isclose(m, np.arctan(self.get_theta()))
+
 
     def set_map(self, current_map):
         """
@@ -107,6 +140,21 @@ class Bot():
 
         """
         self.map = current_map
+
+    def get_map(self):
+        """
+        Returns: Current map of the robot
+
+        """
+        return self.map
+
+    def get_pos(self):
+        """
+        Returns: x, y coords of bot
+
+        """
+
+        return self.x, self.y
 
     def update_pos(self, x, y):
         """
@@ -120,6 +168,27 @@ class Bot():
         self.y = y
         self.x_path.append(x)
         self.y_path.append(y)
+
+    def get_theta(self):
+        """
+        Returns: Orientation theta of the bot
+
+        """
+        return self.theta
+
+    def set_theta(self, theta, degrees=True):
+        """
+        Setter for theta parameter
+
+        Args:
+            theta: Angle to set
+            degrees: Whether or not angle is in degrees
+
+        """
+        if degrees:
+            self.theta = np.deg2rad(theta)
+        else:
+            self.theta = theta
 
     def get_path(self):
         """

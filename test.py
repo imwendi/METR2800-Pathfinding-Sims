@@ -1,3 +1,4 @@
+import numpy as np
 from sim import Bot, Map
 
 map = Map()
@@ -11,7 +12,11 @@ bot.turn(30)
 bot.move(10)
 bot.turn(50)
 bot.move(30)
-map.plot_path(bot)
 
-fig, ax = map.get_fig()
-fig.show()
+# print(bot.get_pos())
+print(bot.sense())
+# print(bot.get_theta())
+
+# map.plot_path(bot)
+# fig, ax = map.get_fig()
+# fig.show()
