@@ -47,31 +47,23 @@ class Map():
         for patch in [boundary, outer, middle, inner]:
             self.ax.add_patch(patch)
 
-    def spawn_bot(self, x=0, y=0, theta=0, random=True):
+    def add_bot(self, new_bot):
         """
-        Spawns a new Bot at a given initial position and orientation if
-        random is False. Otherwise a new bot is spawned at a random position
-        and orientation.
-
-        The new bot is appended to self.bots.
+        Adds a new bot to the map
 
         Args:
-            x, y: Coordinates to spawn Bot at. (in centimeters)
-            theta: Orientation of robot
-            random: Whether or not to spawn the bot at a random position.
-
+            new_bot: Bot to add
         """
 
-        if not random:
-            new_bot = Bot(x, y, theta)
-        else:
-            rand_x = np.random.uniform(-self.width/2, self.width/2)
-            rand_y = np.random.uniform(-self.height/2, self.height/2)
-            rand_angle = np.random.uniform(0, 2*np.pi)
-            new_bot = Bot(rand_x, rand_y, rand_angle)
-
-        new_bot.set_map(current_map=self)
         self.bots.append(new_bot)
+        x, y = new_bot.get_pos()
+        # self.ax.plot(x,
+        #              y,
+        #              #marker=(3, 0, np.rad2deg(new_bot.get_theta())-90),
+        #              marker='s',
+        #              markersize=8,
+        #              color=[i/255 for i in (179, 157, 219)],
+        #              zorder=888)
 
     def get_paths(self):
         """
@@ -97,12 +89,30 @@ class Map():
 
         """
         x_path, y_path = bot.get_path()
-        self.ax.plot(x_path, y_path)
-
+        self.ax.plot(x_path,
+                     y_path,
+                     linewidth=0.88)
 
     def plot_all_paths(self):
         """
         Same as plot_path but for all bots in the map
+
+        """
+
+    def plot_pos(self, bot):
+        """
+        Plots the end position of a bot onto self.fig
+
+        Args:
+            bot: bot whose position is to be plotted
+
+        """
+        x, y = bot.get_pos()
+        self.ax.plot(x, y, marker='.')
+
+    def plot_all_pos(self):
+        """
+        Same as plot_pos but for all bots in the map
 
         """
 
@@ -116,3 +126,10 @@ class Map():
         """
 
         return self.fig, self.ax
+
+    def get_dims(self):
+        """
+        Returns: Width and height of map
+
+        """
+        return self.width, self.height
