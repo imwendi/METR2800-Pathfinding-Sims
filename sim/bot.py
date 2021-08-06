@@ -1,8 +1,9 @@
 import numpy as np
+from .utils import angle_is_between
 
 
 class Bot():
-    def __init__(self, map, x, y, theta, random=True):
+    def __init__(self, map, x=0, y=0, theta=0, random=True):
         """
         Spawns a new bot in given x, y, theta (position and orientation),
         unless random is True in which case a randomized position and
@@ -18,22 +19,72 @@ class Bot():
 
         # Set initial position of bot
         if random:
+            self.x, self.y = 0, 0
             width, height = map.get_dims()
+            # Ensure bot spawns outside of center rings
+            while np.linalg.norm([self.x, self.y]) < 25:
+                self.x = np.random.uniform(-width/2, width/2)
+                self.y = np.random.uniform(-height/2, height/2)
 
-            self.x = np.random.uniform(-width/2, width/2)
-            self.y = np.random.uniform(-height/2, height/2)
             self.theta = np.random.uniform(0, 2*np.pi)
         else:
             self.x = x
             self.y = y
-            self.theta = theta
+            self.theta = np.deg2rad(theta)
 
         # Arrays to store traversed points
-        self.x_path = []
-        self.y_path = []
+        self.x_path = [self.x]
+        self.y_path = [self.y]
 
         # Add bot to map
         map.add_bot(new_bot=self)
+
+    def sense(self):
+        """
+        Simulates distance sensing proximity to a wall in a given direction.
+        By default the direction is that of the robots orientation.
+
+        Args:
+            sensor_theta: Orientation of sensor relative to robot body
+            degrees: If sensing_angle is in degrees
+
+        Returns:
+            Distance to wall in cm (Tuple is returned in 'both' mode)
+            Otherwise returns -1 on error
+
+        """
+        # Compute angles to corners of 1st-4th quadrants
+        l,_ = self.get_map().get_dims()
+        l /= 2
+        x0, y0 = self.get_pos()
+        angles = [np.arctan2(y-y0, x-x0) for (x, y) in
+                  [(l, l), (-l, l), (-l, -l), (l, -l)]]
+
+        # Determine the wall the bot is facing (left, top, right, bottom)
+        theta = self.get_theta()
+        m = np.tan(theta)
+        wall = None
+
+        # Place theta in the same range as np.arctan2's output
+        wall_coords = [(l, None), (None, l), (-l, None), (None, -l)]
+        for i in range(-1, 3):
+            #if angles[i] <= theta <= angles[i+1]:
+            if angle_is_between(theta, angles[i], angles[i+1]):
+                wall = wall_coords[i+1]
+
+        if wall is None:
+            print(f'None for theta = {np.degrees(theta)}')
+            print(f'Angles: {[np.degrees(i) for i in angles]}')
+
+        # Determine the intercept (x1, y1) on the wall
+        if wall[0] is not None:
+            x1 = wall[0]
+            y1 = m*(x1 - x0) + y0
+        else:
+            y1 = wall[1]
+            x1 = (y1 - y0)/m + x0
+
+        return np.linalg.norm(np.array([x1, y1]) - np.array([x0, y0]))
 
     def move(self, distance):
         """
@@ -63,84 +114,8 @@ class Bot():
         if degrees:
             turn_angle = np.deg2rad(turn_angle)
 
-        self.set_theta(self.theta + turn_angle, degrees=False)
+        self.set_theta((self.theta + turn_angle) % (2*np.pi), degrees=False)
 
-    def sense(self, sensor_theta=0, degrees=True):
-        """
-        Simulates distance sensing proximity to a wall in a given direction.
-        By default the direction is that of the robots orientation.
-
-        Args:
-            sensor_theta: Orientation of sensor relative to robot body
-            degrees: If sensing_angle is in degrees
-
-        Returns:
-            Distance to wall in cm (Tuple is returned in 'both' mode)
-            Otherwise returns -1 on error
-
-        """
-        if degrees:
-            sensor_theta = np.deg2rad(sensor_theta)
-
-        l, _ = self.get_map().get_dims()
-        l /= 2.0
-        x0, y0 = self.get_pos()
-        m = np.arctan(self.get_theta() + sensor_theta)
-        intercepts = np.zeros((4, 2))  # x,y values as columns
-
-        print(np.rad2deg(self.theta))
-
-        for i, x in enumerate((-l, l)):
-            if np.isclose(self.theta, np.pi/2)\
-                    or np.isclose(self.theta, 3*np.pi/2):
-                y = self.y
-            else:
-                y = m*(l-x0) + y0
-
-            intercepts[i, :] = [x, y]
-
-        for i, y in enumerate((-l, l)):
-            if np.isclose(self.theta, 0) or np.isclose(self.theta, np.pi):
-                x = self.x
-            else:
-                x = (y-y0)/m + x0
-
-            intercepts[i+2, :] = [x, y]
-
-        for (x, y) in intercepts[:, ...]:
-            print(x, y)
-            if self.is_facing((x, y)):
-                return np.sqrt((x-self.x)**2 + (y-self.y)**2)
-
-        return -1
-
-    def is_facing(self, point):
-        """
-        Returns whether or not a point is in the bot's current line of sight
-
-        Args:
-            point: Tuple of (x, y) coords
-
-        Returns:
-            True if the point is in the bot's line of sight, else false
-
-        """
-        x, y = point
-
-        if np.isclose(self.x, x)\
-            and (np.isclose(self.theta, np.pi/2)
-                 or np.isclose(self.theta, 3*np.pi/2)):
-            return True
-
-        elif np.isclose(self.y, y) \
-                and (np.isclose(self.theta, 0)
-                     or np.isclose(self.theta, np.pi)):
-            return True
-
-        else:
-            m = (y - self.y)/(x - self.x)
-
-            return np.isclose(m, np.arctan(self.get_theta()))
 
     def get_map(self):
         """

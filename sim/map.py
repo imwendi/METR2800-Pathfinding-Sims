@@ -56,6 +56,14 @@ class Map():
         """
 
         self.bots.append(new_bot)
+        x, y = new_bot.get_pos()
+        # self.ax.plot(x,
+        #              y,
+        #              #marker=(3, 0, np.rad2deg(new_bot.get_theta())-90),
+        #              marker='s',
+        #              markersize=8,
+        #              color=[i/255 for i in (179, 157, 219)],
+        #              zorder=888)
 
     def get_paths(self):
         """
@@ -81,12 +89,30 @@ class Map():
 
         """
         x_path, y_path = bot.get_path()
-        self.ax.plot(x_path, y_path)
-
+        self.ax.plot(x_path,
+                     y_path,
+                     linewidth=0.88)
 
     def plot_all_paths(self):
         """
         Same as plot_path but for all bots in the map
+
+        """
+
+    def plot_pos(self, bot):
+        """
+        Plots the end position of a bot onto self.fig
+
+        Args:
+            bot: bot whose position is to be plotted
+
+        """
+        x, y = bot.get_pos()
+        self.ax.plot(x, y, marker='.')
+
+    def plot_all_pos(self):
+        """
+        Same as plot_pos but for all bots in the map
 
         """
 

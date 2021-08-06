@@ -5,3 +5,8 @@ from .bot import (
 from .map import (
     Map
 )
+
+from .utils import (
+    angle_is_between,
+    pol2cart
+)
