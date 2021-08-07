@@ -3,8 +3,6 @@ import numpy as np
 
 def angle_is_between(theta, lower, upper):
     """
-    **UNUSED**
-
     Determine whether or not a given angle is between two given lower and
     upper bound angles.
 
