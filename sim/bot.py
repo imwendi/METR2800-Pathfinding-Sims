@@ -3,7 +3,7 @@ from .utils import angle_is_between
 
 
 class Bot():
-    def __init__(self, map, x=0, y=0, theta=0, random=True):
+    def __init__(self, map, x=0, y=0, theta=0, min_rad=25, random=True):
         """
         Spawns a new bot in given x, y, theta (position and orientation),
         unless random is True in which case a randomized position and
@@ -13,6 +13,7 @@ class Bot():
             map: Map to add bot to
             x, y: Coords of spawn point (cm)
             theta: Angle bot faces (degrees)
+            min_rad: Minimum distance away from center to spawn
 
         """
         self.map = map
@@ -22,7 +23,7 @@ class Bot():
             self.x, self.y = 0, 0
             width, height = map.get_dims()
             # Ensure bot spawns outside of center rings
-            while np.linalg.norm([self.x, self.y]) < 25:
+            while np.linalg.norm([self.x, self.y]) < min_rad:
                 self.x = np.random.uniform(-width/2, width/2)
                 self.y = np.random.uniform(-height/2, height/2)
 

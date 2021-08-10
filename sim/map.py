@@ -7,20 +7,28 @@ class Map():
     """
     Represents the test environment
     """
-    def __init__(self, width=100, height=100):
+    def __init__(self, width=100, height=100, fig=None, ax=None):
         """
         Initializes a new map
 
         Args:
             width: Width of map
             height: Height of map
+            fig, ax: Option to provide fig and axe to plot on, else new ones
+                     are created.
         """
         self.width = width
         self.height = height
         self.bots = []
 
         # Configure figure
-        self.fig, self.ax = plt.subplots()
+        if fig is None or ax is None:
+            self.fig, self.ax = plt.subplots()
+        else:
+            self.fig = fig
+            self.ax = ax
+
+
         bound_scale = 1.3
         self.ax.set_xlim(-width/2*bound_scale, width/2*bound_scale)
         self.ax.set_ylim(-height/2*bound_scale, height/2*bound_scale)
@@ -56,7 +64,7 @@ class Map():
         """
 
         self.bots.append(new_bot)
-        x, y = new_bot.get_pos()
+        # x, y = new_bot.get_pos()
         # self.ax.plot(x,
         #              y,
         #              #marker=(3, 0, np.rad2deg(new_bot.get_theta())-90),
@@ -99,16 +107,17 @@ class Map():
 
         """
 
-    def plot_pos(self, bot):
+    def plot_pos(self, bot, markersize=5):
         """
         Plots the end position of a bot onto self.fig
 
         Args:
             bot: bot whose position is to be plotted
+            markersize: Pyplot plot option
 
         """
         x, y = bot.get_pos()
-        self.ax.plot(x, y, marker='.')
+        self.ax.plot(x, y, marker='.', markersize=markersize)
 
     def plot_all_pos(self):
         """
@@ -133,3 +142,80 @@ class Map():
 
         """
         return self.width, self.height
+
+    def evaluate(self):
+        """
+        Computes the percentage of bots that are in the center of the map
+
+        """
+        successful_bot_no = 0
+
+        for bot in self.bots:
+            x, y = bot.get_pos()
+            if np.sqrt(x**2 + y**2) < 15:
+                successful_bot_no += 1
+
+        return successful_bot_no/len(self.bots)
+
+    def displacement(self, bot):
+        """
+        Computes the displacement from the center of a bot
+
+        Args:
+            bot: Bot to compute displacement for
+
+        Returns:
+            Displacement
+
+        """
+        x, y = bot.get_pos()
+
+        return np.sqrt(x**2 + y**2)
+
+    def mean_displacement(self):
+        """
+        Computes the average displacement from the center of bots that are in
+        the map
+
+        """
+        total_disp = 0
+
+        for bot in self.bots:
+            total_disp += self.displacement(bot)
+
+        return total_disp/len(self.bots)
+
+    def travel_distance(self, bot):
+        """
+        Computes travel distance of a bot
+
+        Args:
+            bot: Bot to compute travel distance for
+
+        Returns:
+            Travel distance
+        """
+        x_path, y_path = bot.get_path()
+        delta_x = x_path[1:] - x_path[:-1]
+        delta_y = y_path[1:] - y_path[:-1]
+
+        return np.sum(np.sqrt(delta_x**2 + delta_y**2))
+
+    def mean_travel_distance(self):
+        """
+        Computes the mean travel distance of each bot
+
+        Returns:
+            Mean travel distance
+
+        """
+
+        return sum([self.travel_distance(bot) for bot in self.bots])\
+               /len(self.bots)
+
+
+
+
+
+
+
