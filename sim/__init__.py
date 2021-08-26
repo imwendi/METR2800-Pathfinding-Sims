@@ -8,5 +8,10 @@ from .map import (
 
 from .utils import (
     angle_is_between,
-    pol2cart
+    pol2cart,
+    find_nearest
+)
+
+from .plotUtils import (
+    setup_tex
 )

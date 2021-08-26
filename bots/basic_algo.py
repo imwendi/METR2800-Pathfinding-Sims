@@ -30,7 +30,7 @@ class BasicBot(Bot):
 
         if d_back > d_for:
             self.move(d_center - d_for)
-            self.turn(180) # This was added to make the bot go back to its own position
+            self.turn(180)
         else:
             self.turn(180)
             self.move(d_center - d_back)
@@ -50,32 +50,31 @@ class BasicBot(Bot):
             count += 1
             d_new = np.abs(self.l_max - self.sense())
 
-            if np.sqrt(d_prev**2 + d_new**2) < 10:
+            if np.sqrt(d_prev**2 + d_new**2) < 15:
                 break
             else:
                 d_prev = d_new
                 self.turn(90)
                 self.equalize_distance()
 
-    def navigate2(self):
+    def navigate2(self, threshold):
         """
         Navigates bot to the center of its map
 
         """
-        count = 0
-        d_prev = np.abs(self.sense())
 
-        while(count < 5):
+        d_prev = np.abs(self.l_max - self.sense())
+
+        self.turn(90)
+        self.equalize_distance()
+        count = 1
+        while(count <= 3):
             count += 1
-            d_new = np.abs(self.sense())
+            d_new = np.abs(self.l_max - self.sense())
 
-            # if np.sqrt(d_prev**2 - d_new**2) > 5:
-            #     break
-            if d_prev - d_new > 5:
-                #print(f"broken at {count}")
+            if d_prev < threshold and d_new < threshold:
                 break
             else:
-                #print(f"unbroken")
                 d_prev = d_new
                 self.turn(90)
                 self.equalize_distance()

@@ -1,14 +1,6 @@
-from sim import Map, Bot
+from sim import find_nearest
 import numpy as np
 
-map = Map()
-
-# bot = Bot(map, 0, 0, 320, random=False)
-# bot.sense()
-
-
-bot = Bot(map, 0, 0, 0, random=False)
-for i in range(37):
-    print(f'{np.degrees(bot.get_theta())}: ', bot.sense())
-    bot.turn(10)
+a = np.array([1, 2, 100, 300 , 400])
+print(find_nearest(a, 3, 3))
 
