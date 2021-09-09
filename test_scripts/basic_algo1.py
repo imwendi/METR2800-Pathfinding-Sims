@@ -4,10 +4,10 @@ import tqdm
 
 map = Map()
 
-for i in tqdm.tqdm(range(1000)):
+for i in tqdm.tqdm(range(10)):
     bot = BasicBot(map, min_rad=25)
     bot.navigate2(threshold=15)
-    # map.plot_path(bot)
+    map.plot_path(bot)
     map.plot_pos(bot)
 
 print(f'acc:{map.evaluate()}, disp:{map.mean_displacement()},'

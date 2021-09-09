@@ -43,6 +43,7 @@ class BasicBot(Bot):
 
         d_prev = np.abs(self.l_max - self.sense())
 
+        noise = 1 + (-1)**(np.random.randint(0, 1)) * np.random.random()
         self.turn(90)
         self.equalize_distance()
         count = 1
