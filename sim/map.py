@@ -117,7 +117,7 @@ class Map():
 
         """
         x, y = bot.get_pos()
-        self.ax.plot(x, y, marker='.', markersize=markersize)
+        self.ax.plot(x, y, marker='.', markersize=markersize, zorder=888)
 
     def plot_all_pos(self):
         """
@@ -203,12 +203,18 @@ class Map():
 
     def mean_travel_distance(self):
         """
-        Computes the mean travel distance of each bot
+        Computes the mean travel distance of each bot that is in the inner
+        circle of the map
 
         Returns:
             Mean travel distance
 
         """
+        # successful_bots = []
+        # for bot in self.bots:
+        #     x, y = bot.get_pos()
+        #     if np.sqrt(x**2+y**2) < 15:
+        #         successful_bots.append(bot)
 
         return sum([self.travel_distance(bot) for bot in self.bots])\
                /len(self.bots)

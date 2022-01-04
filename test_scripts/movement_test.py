@@ -1,5 +1,4 @@
 from sim import Bot, Map
-import matplotlib.pyplot as plt
 
 test_area = Map()
 bot = Bot(test_area, 20, 20, 0, random=False)
@@ -20,4 +19,4 @@ ax.set_xticks([-50, 50])
 ax.set_yticks([-50, 50])
 ax.set_xlim([-52, 52])
 ax.set_ylim([-52, 52])
-fig.savefig('test.png', dpi=150)
+fig.savefig('demo_out.png', dpi=150)

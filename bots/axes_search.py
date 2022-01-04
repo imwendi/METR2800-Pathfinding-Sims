@@ -59,7 +59,7 @@ class AxesSearch(BasicBot):
         theta_x, dx, dy = None, None, None
 
         for (theta1, l1), (theta2, l2) in length_combos:
-            if np.abs((np.abs(theta1 - theta2) - np.pi/2)) < np.deg2rad(15):
+            if np.abs((np.abs(theta1 - theta2) - np.pi/2)) < np.deg2rad(10):
                 if theta1 < theta2:
                     theta_x = theta1
                     dx = l1
@@ -70,6 +70,8 @@ class AxesSearch(BasicBot):
                     dy = l1
 
         return theta_x, dx, dy
+
+
 
 
 

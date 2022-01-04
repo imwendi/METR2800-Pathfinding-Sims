@@ -1,6 +1,24 @@
 import numpy as np
 
 
+def find_nearest(array, value, n=1):
+    """
+    Finds the first n indexes of value in an array closest to the given value
+
+    Args:
+        array: Array to search
+        value: Value to search for
+
+    Returns:
+        Found index
+
+    """
+    array = np.asarray(array)
+    idx = np.argpartition(np.abs(array - value), n)[:n]
+
+    return idx if idx.shape[0] > 1 else idx[0]
+
+
 def angle_is_between(theta, lower, upper):
     """
     Determine whether or not a given angle is between two given lower and
@@ -30,6 +48,7 @@ def angle_is_between(theta, lower, upper):
             theta += 2*np.pi
 
     return lower%360 <= theta <= upper
+
 
 def pol2cart(r, theta):
     """

@@ -7,13 +7,14 @@ from bots import BasicBot
 import tqdm
 
 mpl.rcParams['figure.dpi'] = 300
+plt.rc('font', size=14)
 
 fig, axes = plt.subplots(1, 3, figsize=(10, 5))
 
 for i, ax in enumerate(axes):
     map = Map(fig=fig, ax=ax)
 
-    for j in tqdm.tqdm(range(500)):
+    for j in tqdm.tqdm(range(1000)):
         bot = BasicBot(map)
         for k in range(i+1):
             bot.equalize_distance()
